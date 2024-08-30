@@ -5,7 +5,8 @@ from dotenv import load_dotenv
 from directory_info_extractor import get_directory_info
 from .utils import generate_readme_content
 
-load_dotenv()
+# Try to load .env file, but don't raise an error if it doesn't exist
+load_dotenv(verbose=True)
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
