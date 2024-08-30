@@ -1,0 +1,4 @@
+click
+groq
+python-dotenv
+directory-info-extractor
