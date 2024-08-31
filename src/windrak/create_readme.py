@@ -89,6 +89,7 @@ EXCLUDE_PATTERNS = [
     '*.glb', '*.tiktoken'
 ]
 
+
 @click.command()
 @click.option('--path', default='.', help='Path to the project directory')
 @click.option('--output', default='README.md', help='Output file name')
@@ -109,8 +110,11 @@ def create_readme(path, output):
     click.echo("Generating README content...")
     readme_content = generate_readme_content(repo_info, client)
     
+    # Create the full path for the README file
+    readme_path = os.path.join(path, output)
+    
     # Save the README file
-    with open(output, 'w') as f:
+    with open(readme_path, 'w') as f:
         f.write(readme_content)
     
-    click.echo(f"README file created successfully: {output}")
+    click.echo(f"README file created successfully: {readme_path}")
