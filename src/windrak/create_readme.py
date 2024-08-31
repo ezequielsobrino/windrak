@@ -17,6 +17,10 @@ EXCLUDE_PATTERNS = [
     '*.jpeg', '*.gif', '*.bmp', '*.tiff', '*.svg', '*.ico',
     '*.webp', '*.heif', '*.bpg', '*.flif', '*.tga', '*.tif', '*.psd',
     'tests', '*.ttf', '*.mesh', '*.shape', '*.material', '*.glb', '*.ogg',
+    'venv', 'env', 'node_modules', 'build', 'dist', 'site-packages',
+    '*.egg-info', '*.dist-info', '*.egg', '*.whl', '*.lock', '*.log',
+    '*.pickle', '*.pkl', '*.h5', '*.npy', '*.npz', '*.csv', '*.tsv',
+    '*.exe', '*.dll', '*.so', '*.dylib', '*.bin', '*.dat', '*.dmg'
 ]
 
 @click.command()
