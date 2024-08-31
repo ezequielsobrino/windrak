@@ -51,6 +51,21 @@ Here are some examples of using Windrak:
   windrak create-readme --path . --output README.md --sections "1. Project Name, 2. Brief Description, 3. Main Features"
   ```
 
+## Data Privacy and Security
+**Important:** Windrak uses the Groq API for generating README content, which means that information about your project is sent to Groq's servers for processing. Please be aware of the following:
+
+1. **Confidential Code:** Avoid sending confidential or proprietary code to the Groq API. The README generation process should focus on high-level descriptions and publicly shareable information.
+
+2. **Sensitive Data:** Do not include sensitive data, such as API keys, passwords, or personal information, in the project files that are processed by Windrak.
+
+3. **Review Generated Content:** Always review the generated README content before committing it to your project to ensure no sensitive information has been inadvertently included.
+
+4. **API Key Security:** Keep your Groq API key secure and never share it publicly. Use environment variables or secure secret management tools to handle the API key.
+
+5. **Data Retention:** Familiarize yourself with Groq's data retention and privacy policies to understand how your project information may be handled.
+
+By using Windrak, you acknowledge that you are responsible for ensuring the security and privacy of your project information when interacting with external APIs.
+
 ## API Reference
 Windrak uses the Groq API for generating README content. You can find more information about the Groq API at [https://groq.com/](https://groq.com/).
 
@@ -87,9 +102,6 @@ The project structure is as follows:
 * `LICENSE`: The project license file
 * `requirements.txt`: The dependencies file
 * `setup.py`: The installation script file
-
-## Changelog
-* 0.1.0: Initial release
 
 ## License
 Windrak is licensed under the MIT License. You can find more information about the license at [https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT)
