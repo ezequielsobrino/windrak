@@ -1,4 +1,4 @@
 click
 groq
 python-dotenv
-directory-info-extractor
+directory-info-extractor=0.1.1
