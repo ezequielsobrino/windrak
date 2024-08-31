@@ -88,18 +88,8 @@ The project structure is as follows:
 * `requirements.txt`: The dependencies file
 * `setup.py`: The installation script file
 
-## Troubleshooting
-If you encounter any issues while using Windrak, you can try the following:
-
-* Ensure you have the latest version of Windrak installed
-* Verify that your Groq API key is correct and properly configured
-* Check the project structure to ensure that it matches the expected structure
-
 ## Changelog
 * 0.1.0: Initial release
 
 ## License
-Windrak is licensed under the MIT License. You can find more information about the license at [https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT).
-
-## Contact
-If you have any questions or need help with Windrak, you can contact the project maintainers at [your-email@example.com](mailto:your-email@example.com).
+Windrak is licensed under the MIT License. You can find more information about the license at [https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT)
