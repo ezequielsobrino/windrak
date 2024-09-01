@@ -69,25 +69,51 @@ By using Windrak, you acknowledge that you are responsible for ensuring the secu
 ## API Reference
 Windrak uses the Groq API for generating README content. You can find more information about the Groq API at [https://groq.com/](https://groq.com/).
 
-## How to Contribute
-If you want to contribute to Windrak or make changes to the source code, follow these steps:
 
-1. Clone the repository:
+## How to Contribute
+Contributing to Windrak involves enhancing its CLI capabilities, such as adding new commands or improving existing ones. Here’s a detailed guide on how to add new commands to the Windrak CLI:
+
+1. **Fork the Repository**: Start by forking the Windrak repository on GitHub to your own account. This allows you to make changes without affecting the original project.
+2. **Clone Your Fork**: Clone the forked repository to your local machine:
    ```bash
-   git clone https://github.com/ezequielsobrino/windrak.git
+   git clone https://github.com/yourusername/windrak.git
    ```
-2. Navigate to the project directory:
+3. **Set Up Your Development Environment**:
+   * Navigate to the cloned repository.
+   * Install the required dependencies:
+     ```bash
+     pip install -r requirements.txt
+     ```
+
+4. **Create a New Branch**: Make a new branch for your changes:
    ```bash
-   cd windrak
+   git checkout -b add-your-new-command
    ```
-3. Install the development dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Create a new branch for your feature or bug fix
-5. Make your changes and commit them
-6. Push your changes to your fork
-7. Open a pull request to the main repository
+5. **Develop Your New Command**:
+   * Add your new command script in the `src/windrak` directory. Refer to the structure of existing commands, like `create_readme.py`, for guidance.
+   * Update `src/windrak/cli.py` to include your new command in the CLI group.
+   * Ensure that your command handles user input appropriately and integrates seamlessly with the Groq API if needed.
+
+6. **Test Your Command**: Ensure that your command works as expected. You can manually test it by running the Windrak CLI locally.
+7. **Commit and Push Your Changes**:
+   * Add your changes to git:
+     ```bash
+     git add .
+     ```
+   * Commit your changes:
+     ```bash
+     git commit -m "Add new CLI command: your-command"
+     ```
+   * Push your branch to GitHub:
+     ```bash
+     git push origin add-your-new-command
+     ```
+8. **Open a Pull Request (PR)**:
+   * Go to the original Windrak repository on GitHub.
+   * Click on 'Pull Requests' and then the 'New pull request' button.
+   * Select your branch and provide a description of your changes.
+   * Submit the PR for review by the repository maintainers.
+9. **Respond to Feedback**: If the repository maintainers have any feedback or require changes to your pull request, make the necessary adjustments and update your PR.
 
 ## Project Structure
 The project structure is as follows:
