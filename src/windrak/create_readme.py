@@ -87,24 +87,36 @@ EXCLUDE_PATTERNS = [
 @click.option('--output', default='README.md', help='Output file name')
 @click.pass_context
 def create_readme(ctx, path, output):
-    """Create a README file."""
+    """
+    Creates a README file in the specified project directory.
+    This function leverages the Groq client stored in the context for generating content
+    based on the analyzed directory structure and file contents.
+    """
+    # Notifies the user that the project directory is being analyzed
     click.echo(f"Analyzing project structure in {path}...")
 
+    # Collects detailed information about the directory structure and file contents
     repo_info = get_directory_info(
         path,
-        include_project_structure=True,
-        include_file_contents=True,
-        include_patterns=INCLUDE_PATTERNS,
-        exclude_patterns=EXCLUDE_PATTERNS,
-        recursive=True
+        include_project_structure=True,  # Include the structure of the project directories
+        include_file_contents=True,      # Include the contents of the files
+        include_patterns=INCLUDE_PATTERNS,  # Specify patterns of files to include
+        exclude_patterns=EXCLUDE_PATTERNS,  # Specify patterns of files to exclude
+        recursive=True  # Recursively go through directories
     )
 
+    # Notifies the user that the README content is being generated
     click.echo("Generating README content...")
+
+    # Generates the content for the README file using the collected repo information
     readme_content = generate_readme_content(repo_info, ctx.obj['groq_client'])
 
+    # Determines the full path where the README will be written
     readme_path = os.path.join(path, output)
 
+    # Writes the generated README content to the specified file
     with open(readme_path, 'w') as f:
         f.write(readme_content)
 
+    # Confirms the creation of the README file to the user
     click.echo(f"README file created successfully: {readme_path}")
