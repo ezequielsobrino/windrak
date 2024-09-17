@@ -2,3 +2,4 @@ click
 groq
 python-dotenv
 directory-info-extractor=0.1.1
+requests
