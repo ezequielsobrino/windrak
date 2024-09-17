@@ -1,6 +1,5 @@
 import click
 import requests
-from groq import Groq
 
 def get_branch_diff(owner, repo, base, head, github_token):
     url = f"https://api.github.com/repos/{owner}/{repo}/compare/{base}...{head}"
@@ -9,11 +8,7 @@ def get_branch_diff(owner, repo, base, head, github_token):
         "Accept": "application/vnd.github.v3+json"
     }
     response = requests.get(url, headers=headers)
-    
-    if response.status_code != 200:
-        click.echo(f"Error: {response.status_code} - {response.text}")
-        return None
-    
+    response.raise_for_status()
     comparison = response.json()
     
     diff = ""

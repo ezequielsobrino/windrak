@@ -1,6 +1,5 @@
 import click
 import os
-from github import Github
 from groq import Groq  # Importing the Groq library for specific API interactions
 from dotenv import load_dotenv  # dotenv for loading environment variables
 from .create_pr import create_pr
