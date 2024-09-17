@@ -1,7 +1,9 @@
 import click
 import os
+from github import Github
 from groq import Groq  # Importing the Groq library for specific API interactions
 from dotenv import load_dotenv  # dotenv for loading environment variables
+from .create_pr import create_pr
 from .create_readme import create_readme  # Importing a custom function to create README files
 
 def init_groq():
@@ -12,6 +14,13 @@ def init_groq():
     load_dotenv(verbose=True)  # Load environment variables and show process if verbose
     return Groq(api_key=os.getenv("GROQ_API_KEY"))  # Create and return a Groq client using the API key
 
+def init_github():
+    """
+    Initializes the GitHub client by loading the token from environment variables.
+    """
+    load_dotenv(verbose=True)
+    return os.getenv("GITHUB_TOKEN")
+
 @click.group()
 @click.pass_context
 def cli(ctx):
@@ -20,9 +29,11 @@ def cli(ctx):
     This CLI is named 'Windrak' and provides advanced file operations integrated with LLM capabilities.
     """
     ctx.ensure_object(dict)  # Ensure that the context is a dictionary to store shared data
+    ctx.obj['github_token'] = init_github()
     ctx.obj['groq_client'] = init_groq()  # Store the initialized Groq client in the context for use in other commands
 
-cli.add_command(create_readme)  # Add the 'create_readme' command to the CLI group
+cli.add_command(create_pr)  
+cli.add_command(create_readme) # Add the 'create_readme' command to the CLI group
 
 if __name__ == '__main__':  # Ensures the script is run directly (not imported)
     cli()  # Execute the CLI
