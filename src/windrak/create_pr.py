@@ -77,18 +77,26 @@ def confirm_pr_content(title, description):
     
     while True:
         choice = click.prompt(
-            "\nDo you want to (a)ccept, (r)eject and regenerate, or (m)odify the content?",
-            type=click.Choice(['a', 'r', 'm'], case_sensitive=False)
+            "\nChoose an option:\n"
+            "(a) Accept\n"
+            "(r) Regenerate\n"
+            "(m) Modify (provide feedback)\n"
+            "(c) Cancel",
+            type=click.Choice(['a', 'r', 'm', 'c'], case_sensitive=False)
         )
         
         if choice == 'a':
+            print("Content accepted.")
             return True, None
         elif choice == 'r':
-            return False, None
+            print("Regenerating content...")
+            return False, "regenerate"
         elif choice == 'm':
             feedback = click.prompt("\nPlease provide your feedback or modifications")
             return False, feedback
-
+        elif choice == 'c':
+            print("Operation cancelled.")
+            return False, "cancel"
 
 @click.command()
 @click.option('--base', default='main', help='Base branch for comparison')
