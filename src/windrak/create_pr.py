@@ -77,18 +77,26 @@ def confirm_pr_content(title, description):
     
     while True:
         choice = click.prompt(
-            "\nDo you want to (a)ccept, (r)eject and regenerate, or (m)odify the content?",
-            type=click.Choice(['a', 'r', 'm'], case_sensitive=False)
+            "\nChoose an option:\n"
+            "(a) Accept\n"
+            "(r) Regenerate\n"
+            "(m) Modify (provide feedback)\n"
+            "(c) Cancel",
+            type=click.Choice(['a', 'r', 'm', 'c'], case_sensitive=False)
         )
         
         if choice == 'a':
+            print("Content accepted.")
             return True, None
         elif choice == 'r':
-            return False, None
+            print("Regenerating content...")
+            return False, "regenerate"
         elif choice == 'm':
             feedback = click.prompt("\nPlease provide your feedback or modifications")
             return False, feedback
-
+        elif choice == 'c':
+            print("Operation cancelled.")
+            return True, "cancel"
 
 @click.command()
 @click.option('--base', default='main', help='Base branch for comparison')
@@ -121,8 +129,11 @@ def create_pr(ctx, base, head, repo):
             confirmed, user_feedback = confirm_pr_content(title, description)
             
             if confirmed:
-                break
-            elif user_feedback is None:
+                if user_feedback == "cancel":
+                    click.echo("Operation cancelled. No PR created.")
+                    return
+                break  # Exit the loop if the user accepts the content
+            elif user_feedback == "regenerate":
                 feedback = None  # Regenerate without specific feedback
             else:
                 feedback = {
@@ -130,57 +141,7 @@ def create_pr(ctx, base, head, repo):
                     'user_input': user_feedback
                 }
 
-        # Create the pull request
-        url = f"https://api.github.com/repos/{owner}/{repo_name}/pulls"
-        headers = {
-            "Authorization": f"token {github_token}",
-            "Accept": "application/vnd.github.v3+json"
-        }
-        data = {
-            "title": title,
-            "body": description,
-            "head": head,
-            "base": base
-        }
-        response = requests.post(url, headers=headers, json=data)
-        response.raise_for_status()
-        pr = response.json()
-        click.echo(f"Pull Request created successfully: {pr['html_url']}")
-    except Exception as e:
-        click.echo(f"Error creating Pull Request: {str(e)}")
-
-    try:
-        owner, repo_name = repo.split('/')
-        
-        if not head:
-            # Get the default branch
-            url = f"https://api.github.com/repos/{owner}/{repo_name}"
-            headers = {
-                "Authorization": f"token {github_token}",
-                "Accept": "application/vnd.github.v3+json"
-            }
-            response = requests.get(url, headers=headers)
-            response.raise_for_status()
-            head = response.json()['default_branch']
-
-        diff = get_branch_diff(owner, repo_name, base, head, github_token)
-        
-        feedback = None
-        while True:
-            title, description = generate_pr_content(diff, groq_client, feedback)
-            confirmed, user_feedback = confirm_pr_content(title, description)
-            
-            if confirmed:
-                break
-            elif user_feedback is None:
-                feedback = None  # Regenerate without specific feedback
-            else:
-                feedback = {
-                    'previous_content': f"Title: {title}\nDescription: {description}",
-                    'user_input': user_feedback
-                }
-
-        # Create the pull request
+        # Create the pull request (only reached if user confirmed and didn't cancel)
         url = f"https://api.github.com/repos/{owner}/{repo_name}/pulls"
         headers = {
             "Authorization": f"token {github_token}",
