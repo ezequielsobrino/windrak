@@ -1,5 +1,7 @@
 import click
 import requests
+import subprocess
+import os
 
 def get_branch_diff(owner, repo, base, head, github_token):
     url = f"https://api.github.com/repos/{owner}/{repo}/compare/{base}...{head}"
@@ -98,29 +100,53 @@ def confirm_pr_content(title, description):
             print("Operation cancelled.")
             return True, "cancel"
 
+def get_current_branch():
+    try:
+        return subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode('utf-8').strip()
+    except subprocess.CalledProcessError:
+        click.echo("Error: Not a git repository or git command not found.")
+        return None
+
+def get_remote_url():
+    try:
+        remote_url = subprocess.check_output(['git', 'config', '--get', 'remote.origin.url']).decode('utf-8').strip()
+        # Extract owner/repo from the URL
+        if remote_url.endswith('.git'):
+            remote_url = remote_url[:-4]
+        return os.path.basename(os.path.dirname(remote_url)) + '/' + os.path.basename(remote_url)
+    except subprocess.CalledProcessError:
+        click.echo("Error: Unable to get remote URL. Make sure you're in a git repository with a remote named 'origin'.")
+        return None
+
 @click.command()
-@click.option('--base', default='main', help='Base branch for comparison')
-@click.option('--head', default='', help='Head branch for comparison (current branch if empty)')
-@click.option('--repo', help='GitHub repository in the format owner/repo')
+@click.option('--base', help='Base branch for comparison (default: main)')
+@click.option('--head', help='Head branch for comparison (default: current branch)')
+@click.option('--repo', help='GitHub repository in the format owner/repo (default: derived from remote origin)')
 @click.pass_context
 def create_pr(ctx, base, head, repo):
     try:
         github_token = ctx.obj['github_token']
         groq_client = ctx.obj['groq_client']
         
-        owner, repo_name = repo.split('/')
+        if not base:
+            base = 'main'
+            click.echo(f"Using default base branch: {base}")
         
         if not head:
-            # Get the default branch
-            url = f"https://api.github.com/repos/{owner}/{repo_name}"
-            headers = {
-                "Authorization": f"token {github_token}",
-                "Accept": "application/vnd.github.v3+json"
-            }
-            response = requests.get(url, headers=headers)
-            response.raise_for_status()
-            head = response.json()['default_branch']
-
+            head = get_current_branch()
+            if not head:
+                return
+            click.echo(f"Using current branch as head: {head}")
+        
+        if not repo:
+            repo = get_remote_url()
+            if not repo:
+                return
+            click.echo(f"Using repository derived from remote: {repo}")
+        
+        owner, repo_name = repo.split('/')
+        
+        # Rest of the function remains the same...
         diff = get_branch_diff(owner, repo_name, base, head, github_token)
         
         feedback = None
@@ -141,7 +167,7 @@ def create_pr(ctx, base, head, repo):
                     'user_input': user_feedback
                 }
 
-        # Create the pull request (only reached if user confirmed and didn't cancel)
+        # Create the pull request
         url = f"https://api.github.com/repos/{owner}/{repo_name}/pulls"
         headers = {
             "Authorization": f"token {github_token}",
