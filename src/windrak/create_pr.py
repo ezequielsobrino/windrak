@@ -147,8 +147,16 @@ def create_pr(ctx, base, head, repo):
                 return
             click.echo(f"Using repository derived from remote: {repo}")
         
-        owner, repo_name = repo.split('/')
+        try:
+            owner, repo_name = repo.split('/')
+        except ValueError:
+            click.echo("Error: Invalid repository format. Please use 'owner/repo' format.")
+            return
         
+        if not repo or '/' not in repo:
+            click.echo("Error: Invalid repository format. Please use 'owner/repo' format or ensure your git remote is set correctly.")
+            return
+
         # Rest of the function remains the same...
         diff = get_branch_diff(owner, repo_name, base, head, github_token)
         
