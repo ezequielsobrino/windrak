@@ -3,6 +3,8 @@ import requests
 import subprocess
 import os
 
+from .utils import require_api_keys
+
 def get_branch_diff(owner, repo, base, head, github_token):
     url = f"https://api.github.com/repos/{owner}/{repo}/compare/{base}...{head}"
     headers = {
@@ -119,10 +121,11 @@ def get_remote_url():
         return None
 
 @click.command()
+@click.pass_context
 @click.option('--base', help='Base branch for comparison (default: main)')
 @click.option('--head', help='Head branch for comparison (default: current branch)')
 @click.option('--repo', help='GitHub repository in the format owner/repo (default: derived from remote origin)')
-@click.pass_context
+@require_api_keys('github', 'groq')
 def create_pr(ctx, base, head, repo):
     try:
         github_token = ctx.obj['github_token']

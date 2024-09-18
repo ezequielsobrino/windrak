@@ -1,7 +1,8 @@
 import os
 import click
 from directory_info_extractor import get_directory_info
-from .utils import generate_readme_content
+
+from .utils import generate_readme_content, require_api_keys
 
 # Inclusion patterns for useful files in various languages
 INCLUDE_PATTERNS = [
@@ -83,9 +84,10 @@ EXCLUDE_PATTERNS = [
 ]
 
 @click.command()
+@click.pass_context
 @click.option('--path', default='.', help='Path to the project directory')
 @click.option('--output', default='README.md', help='Output file name')
-@click.pass_context
+@require_api_keys('groq')
 def create_readme(ctx, path, output):
     """
     Creates a README file in the specified project directory.

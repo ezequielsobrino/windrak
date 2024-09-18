@@ -43,3 +43,44 @@ def generate_readme_content(repo_info, client, sections=None):
     )
     
     return response.choices[0].message.content
+
+
+import click
+from functools import wraps
+
+def require_api_keys(*keys):
+    """
+    Decorator to check if required API keys are set before executing a command.
+    """
+    def decorator(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            ctx = click.get_current_context()
+            for key in keys:
+                if key == 'groq' and not ctx.obj['groq_client']:
+                    click.echo("Groq API key is not set. To use this feature, please set the GROQ_API_KEY environment variable.")
+                    click.echo("You can obtain a Groq API key from: https://console.groq.com/")
+                    click.echo("Then, set it in your environment like this:")
+                    click.echo("  - On Linux/macOS:")
+                    click.echo("    export GROQ_API_KEY=your_api_key_here")
+                    click.echo("  - On Windows (Command Prompt):")
+                    click.echo("    set GROQ_API_KEY=your_api_key_here")
+                    click.echo("  - On Windows (PowerShell):")
+                    click.echo("    $env:GROQ_API_KEY = 'your_api_key_here'")
+                    return
+                elif key == 'github' and not ctx.obj['github_token']:
+                    click.echo("GitHub token is not set. To use this feature, please set the GITHUB_TOKEN environment variable.")
+                    click.echo("You can create a GitHub token at: https://github.com/settings/tokens")
+                    click.echo("Then, set it in your environment like this:")
+                    click.echo("  - On Linux/macOS:")
+                    click.echo("    export GITHUB_TOKEN=your_github_token_here")
+                    click.echo("  - On Windows (Command Prompt):")
+                    click.echo("    set GITHUB_TOKEN=your_github_token_here")
+                    click.echo("  - On Windows (PowerShell):")
+                    click.echo("    $env:GITHUB_TOKEN = 'your_github_token_here'")
+                    click.echo("For public repositories, you only need to grant the 'public_repo' scope.")
+                    click.echo("For private repositories, grant these scopes: repo, repo:status, repo_deployment, repo:invite, security_events")
+                    return
+            return f(*args, **kwargs)
+        return wrapper
+    return decorator
