@@ -1,124 +1,225 @@
-import os
+import subprocess
 import click
-from directory_info_extractor import get_directory_info
+import base64
+from github import Github
+from github.GithubException import GithubException
+import fnmatch
 
 from .utils import generate_readme_content, require_api_keys
 
-# Inclusion patterns for useful files in various languages
-INCLUDE_PATTERNS = [
-    # Configuration and metadata files
-    'README', 'LICENSE', 'CONTRIBUTING', 'CHANGELOG', '.gitignore',
-    'requirements.txt', 'setup.py', 'package.json', 'Gemfile', 'Cargo.toml',
-    'composer.json', 'build.gradle', 'pom.xml', '.env.example', 'Makefile',
-
-    # Documentation
-    'docs/', '.md',
-
-    # Main source code
-    '.py', '.js', '.ts', '.java', '.rb', '.php', '.go', '.rs', '.cs',
-    '.cpp', '.c', '.h', '.swift', '.kt', '.scala', '.sh', '*.bat',
-
-    # Configuration files
-    '.yml', '.yaml', '.toml', '.ini', '.cfg', '.conf',
-
-    # Other relevant files
-    'Dockerfile'
+# Default inclusion patterns
+DEFAULT_INCLUDE_PATTERNS = [
+    '*.py',  # Python source files
+    '*.md',  # Markdown files
+    'README*',  # README files
+    'LICENSE*',  # License files
+    'requirements.txt',  # Python dependencies
+    'setup.py',  # Python package setup
+    'Dockerfile',  # Docker configuration
+    '.gitignore',  # Git ignore file
+    'docs/*',  # Documentation directory
 ]
 
-# Exclusion patterns
-EXCLUDE_PATTERNS = [
-    # Python-specific
-    '.pyc', 'pycache', '.egg-info', '.dist-info', '.egg',
-
-    # JavaScript/Node.js-specific
-    'node_modules',
-
-    # Build and distribution directories
-    'build', 'dist', 'site-packages',
-
-    # Version control
-    '.git', '.github',
-
+# Default exclusion patterns
+DEFAULT_EXCLUDE_PATTERNS = [
+    # Python bytecode and cache
+    '*.pyc',
+    '__pycache__/*',
+    '*.pyo',
+    '*.pyd',
+    
     # Virtual environments
-    'venv', 'env', '.venv', '.env',
-
+    'venv/*',
+    'env/*',
+    '.venv/*',
+    '.env/*',
+    'virtualenv/*',
+    '*env*/*',  # Catches variations like myenv, python-env, etc.
+    '.Python',
+    'pip-selfcheck.json',
+    
+    # Environment and local configuration files
+    '.env',
+    '*.env',
+    '.env.*',
+    'config.local.js',
+    'local_settings.py',
+    '*.local',
+    '*.local.*',
+    
     # IDE and editor files
-    '.vscode', '.idea', '.swp', '.swo',
-
-    # Temporary and cache files
-    '.tmp', '.bak', '*.cache',
-
+    '.vscode/*',
+    '.idea/*',
+    '*.swp',
+    '*.swo',
+    '*.swn',
+    '*.bak',
+    
+    # OS generated files
+    '.DS_Store',
+    'Thumbs.db',
+    
+    # Build and distribution directories
+    'build/*',
+    'dist/*',
+    '*.egg-info/*',
+    
+    # Git related
+    '.git/*',
+    '.gitattributes',
+    
+    # CI/CD related
+    '.github/*',
+    '.travis.yml',
+    '.gitlab-ci.yml',
+    'circle.yml',
+    'appveyor.yml',
+    
+    # Docker related
+    '.dockerignore',
+    
+    # Test directories and files
+    'tests/*',
+    'test/*',
+    '*_test.py',
+    '*_tests.py',
+    
     # Log files
     '*.log',
-
-    # OS-specific
-    '.DS_Store', 'Thumbs.db',
-
-    # Binary and data files
-    '.exe', '.dll', '.so', '.dylib', '.bin', '.dat', '.dmg',
-    '.whl', '.pkl', '.pickle',
-
-    # Image files
-    '.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff', '.svg', '.ico',
-    '.webp', '.heif',
-
-    # Audio files
-    '.mp3', '.wav', '.ogg', '.flac',
-
-    # Video files
-    '.mp4', '.avi', '*.mov',
-
-    # Document files
-    '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '*.pptx',
-
-    # Archive files
-    '.zip', '.tar', '.gz', '.rar',
-
+    'logs/*',
+    
     # Database files
-    '.db', '.sqlite', '*.sqlite3',
-
-    # Other specific files and directories
-    'tests', '.flake8', '.ipynb', '.npz', '.h5', '.npy', 
-    '.csv', '.tsv', '.ttf', '.mesh', '.shape', '.material', 
-    '.glb', '.tiktoken'
+    '*.sqlite3',
+    '*.db',
+    
+    # Temporary files
+    'tmp/*',
+    'temp/*',
+    '*.tmp',
+    '*.temp',
+    
+    # Compiled files
+    '*.so',
+    '*.dylib',
+    '*.dll',
+    
+    # Package manager directories
+    'node_modules/*',
+    'bower_components/*',
+    
+    # Coverage reports
+    '.coverage',
+    'htmlcov/*',
+    
+    # Jupyter Notebook checkpoints
+    '.ipynb_checkpoints/*',
 ]
+
+def get_current_repo():
+    """
+    Get the current repository information from git config.
+    Returns a tuple of (owner, repo) or (None, None) if not in a git repository.
+    """
+    try:
+        # Get the remote URL
+        remote_url = subprocess.check_output(["git", "config", "--get", "remote.origin.url"]).decode().strip()
+        
+        # Parse the URL to get owner and repo
+        if remote_url.endswith('.git'):
+            remote_url = remote_url[:-4]
+        parts = remote_url.split('/')
+        owner = parts[-2]
+        repo = parts[-1]
+        
+        return owner, repo
+    except subprocess.CalledProcessError:
+        return None, None
+
+def should_include_file(file_path, include_patterns, exclude_patterns):
+    """
+    Determine if a file should be included based on the inclusion and exclusion patterns.
+    """
+    # Check exclusions first
+    for pattern in exclude_patterns:
+        if fnmatch.fnmatch(file_path, pattern):
+            return False
+    
+    # Then check inclusions
+    for pattern in include_patterns:
+        if fnmatch.fnmatch(file_path, pattern):
+            return True
+    
+    return False
 
 @click.command()
 @click.pass_context
-@click.option('--path', default='.', help='Path to the project directory')
+@click.option('--repo', help='GitHub repository in the format "owner/repo". If not provided, uses the current repository.')
 @click.option('--output', default='README.md', help='Output file name')
-@require_api_keys('groq')
-def create_readme(ctx, path, output):
+@click.option('--include', multiple=True, help='Additional file patterns to include')
+@click.option('--exclude', multiple=True, help='Additional file patterns to exclude')
+@require_api_keys('groq', 'github')
+def create_readme(ctx, repo, output, include, exclude):
     """
-    Creates a README file in the specified project directory.
-    This function leverages the Groq client stored in the context for generating content
-    based on the analyzed directory structure and file contents.
+    Creates a README file for the specified GitHub repository or the current repository if not specified.
+    This function now generates a readable string representation of the repository structure and file contents.
     """
-    # Notifies the user that the project directory is being analyzed
-    click.echo(f"Analyzing project structure in {path}...")
+    # Combine default and user-specified patterns
+    include_patterns = list(DEFAULT_INCLUDE_PATTERNS) + list(include)
+    exclude_patterns = list(DEFAULT_EXCLUDE_PATTERNS) + list(exclude)
 
-    # Collects detailed information about the directory structure and file contents
-    repo_info = get_directory_info(
-        path,
-        include_project_structure=True,  # Include the structure of the project directories
-        include_file_contents=True,      # Include the contents of the files
-        include_patterns=INCLUDE_PATTERNS,  # Specify patterns of files to include
-        exclude_patterns=EXCLUDE_PATTERNS,  # Specify patterns of files to exclude
-        recursive=True  # Recursively go through directories
-    )
+    # Initialize GitHub client
+    github_client = Github(ctx.obj['github_token'])
 
-    # Notifies the user that the README content is being generated
-    click.echo("Generating README content...")
+    # If repo is not provided, try to get the current repository
+    if not repo:
+        owner, repo_name = get_current_repo()
+        if owner and repo_name:
+            repo = f"{owner}/{repo_name}"
+        else:
+            click.echo("Error: Not in a git repository and no repository specified.")
+            return
 
-    # Generates the content for the README file using the collected repo information
-    readme_content = generate_readme_content(repo_info, ctx.obj['groq_client'])
+    click.echo(f"Analyzing GitHub repository: {repo}...")
 
-    # Determines the full path where the README will be written
-    readme_path = os.path.join(path, output)
+    try:
+        # Get the repository
+        repository = github_client.get_repo(repo)
 
-    # Writes the generated README content to the specified file
-    with open(readme_path, 'w') as f:
-        f.write(readme_content)
+        # Initialize the string to store repository information
+        repo_info = f"Repository: {repository.name}\n"
+        repo_info += f"Description: {repository.description}\n\n"
+        repo_info += "Project Structure:\n"
 
-    # Confirms the creation of the README file to the user
-    click.echo(f"README file created successfully: {readme_path}")
+        # Get repository contents
+        contents = repository.get_contents("")
+        while contents:
+            file_content = contents.pop(0)
+            if file_content.type == "dir":
+                contents.extend(repository.get_contents(file_content.path))
+            else:
+                if should_include_file(file_content.path, include_patterns, exclude_patterns):
+                    repo_info += f"\n- {file_content.path}\n"
+                    # Get file content for text-based files
+                    if file_content.path.lower().endswith(('.py', '.md', '.txt', '.yml', '.yaml', '.json', '.js', '.css', '.html')):
+                        try:
+                            file_content_data = base64.b64decode(file_content.content).decode('utf-8')
+                            repo_info += "  Content:\n"
+                            repo_info += "  " + "\n  ".join(file_content_data.split("\n")) + "\n"
+                        except UnicodeDecodeError:
+                            repo_info += "  Warning: Could not decode file content. Skipping content.\n"
+
+        click.echo("Collected repository information:")
+        click.echo(repo_info)
+
+        # Generate README content
+        click.echo("Generating README content...")
+        readme_content = generate_readme_content(repo_info, ctx.obj['groq_client'])
+
+        # Write README content to file
+        with open(output, 'w') as f:
+            f.write(readme_content)
+
+        click.echo(f"README file created successfully: {output}")
+
+    except GithubException as e:
+        click.echo(f"Error accessing GitHub repository: {e}")
