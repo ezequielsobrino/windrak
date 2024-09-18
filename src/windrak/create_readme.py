@@ -11,7 +11,7 @@ from .utils import generate_readme_content, require_api_keys
 DEFAULT_INCLUDE_PATTERNS = [
     '*.py',  # Python source files
     '*.md',  # Markdown files
-    'README*',  # README files
+    #'README*',  # README files
     'LICENSE*',  # License files
     'requirements.txt',  # Python dependencies
     'setup.py',  # Python package setup
@@ -22,6 +22,8 @@ DEFAULT_INCLUDE_PATTERNS = [
 
 # Default exclusion patterns
 DEFAULT_EXCLUDE_PATTERNS = [
+    'README.md',
+
     # Python bytecode and cache
     '*.pyc',
     '__pycache__/*',
@@ -190,6 +192,9 @@ def create_readme(ctx, repo, output, include, exclude):
         repo_info += f"Description: {repository.description}\n\n"
         repo_info += "Project Structure:\n"
 
+        # Initialize a string to store only the project structure
+        project_structure = "Project Structure:\n"
+
         # Get repository contents
         contents = repository.get_contents("")
         while contents:
@@ -199,6 +204,7 @@ def create_readme(ctx, repo, output, include, exclude):
             else:
                 if should_include_file(file_content.path, include_patterns, exclude_patterns):
                     repo_info += f"\n- {file_content.path}\n"
+                    project_structure += f"- {file_content.path}\n"
                     # Get file content for text-based files
                     if file_content.path.lower().endswith(('.py', '.md', '.txt', '.yml', '.yaml', '.json', '.js', '.css', '.html')):
                         try:
@@ -208,10 +214,11 @@ def create_readme(ctx, repo, output, include, exclude):
                         except UnicodeDecodeError:
                             repo_info += "  Warning: Could not decode file content. Skipping content.\n"
 
-        click.echo("Collected repository information:")
-        click.echo(repo_info)
+        # Print only the project structure to the console
+        click.echo("Collected repository structure:")
+        click.echo(project_structure)
 
-        # Generate README content
+        # Generate README content using the full repo_info
         click.echo("Generating README content...")
         readme_content = generate_readme_content(repo_info, ctx.obj['groq_client'])
 
