@@ -1,84 +1,141 @@
 # Windrak
+================
 
 Windrak is a powerful command-line tool that combines advanced file operations with the capabilities of modern Language Models (LLMs). This tool is designed to enhance development workflows by automating tasks, providing insightful analysis, and generating content directly from the command line.
 
-## Features
+## Table of Contents
 
-* **Automated Pull Request Creation**: Windrak can create pull requests with automatically generated titles and descriptions based on the changes made to the repository.
-* **README File Generation**: Windrak can generate a detailed README file for your repository, including information about the project structure, features, and usage.
-* **Integration with GitHub and Groq APIs**: Windrak uses the GitHub API to interact with your repositories and the Groq API to generate high-quality content.
+1. [Project Name](#project-name)
+2. [Brief Description](#brief-description)
+3. [Main Features](#main-features)
+4. [Prerequisites](#prerequisites)
+5. [Installation](#installation)
+6. [Usage](#usage)
+7. [Examples](#examples)
+8. [Project Structure](#project-structure)
+9. [API Reference](#api-reference)
+10. [How to Contribute](#how-to-contribute)
+11. [Troubleshooting](#troubleshooting)
+12. [Changelog](#changelog)
+13. [License](#license)
+14. [Contact](#contact)
+
+## Project Name
+---------------
+
+Windrak is the name of this project.
+
+## Brief Description
+--------------------
+
+Windrak is a command-line tool that combines advanced file operations with the capabilities of modern Language Models (LLMs) to enhance development workflows.
+
+## Main Features
+----------------
+
+*   **Automated Task Generation**: Windrak can generate tasks such as creating pull requests, generating README files, and more.
+*   **Insightful Analysis**: Windrak can analyze repository information and provide insightful analysis.
+*   **Content Generation**: Windrak can generate content such as README files, pull request titles, and descriptions.
+
+## Prerequisites
+----------------
+
+*   **Python 3.8 or higher**: Windrak requires Python 3.8 or higher to run.
+*   **Git**: Windrak requires Git to be installed on the system to access repository information.
+*   **Groq API Key**: Windrak requires a Groq API key to use the Groq LLM.
+*   **GitHub Token**: Windrak requires a GitHub token to access GitHub repositories.
 
 ## Installation
+------------
 
-To install Windrak, you can use pip:
-
-```bash
-pip install windrak
-```
-
-After installation, you need to set up your Groq API key as an environment variable. You can do this by running the following command in your terminal, replacing "your-groq-api-key" with your actual API key:
+To install Windrak, run the following command:
 
 ```bash
-export GROQ_API_KEY="your-groq-api-key"
+pip install .
 ```
-
-## Configuration
-
-Before using Windrak, you also need to set up your GitHub token as an environment variable. You can do this by running the following command:
-
-```bash
-export GITHUB_TOKEN=your_github_token_here
-```
-
-Replace `your_github_token_here` with your actual GitHub token.
 
 ## Usage
+-----
 
-Windrak provides two main commands: `create-pr` and `create-readme`.
+Windrak provides two main commands:
 
-### Create Pull Request
+*   `create-pr`: Creates a pull request based on the repository information.
+*   `create-readme`: Generates a README file based on the repository information.
 
-To create a pull request, use the following command:
-
-```bash
-windrak create-pr
-```
-
-This command will create a pull request with an automatically generated title and description based on the changes made to the repository.
-
-### Create README File
-
-To generate a README file, use the following command:
+To use Windrak, simply run the command with the required options. For example:
 
 ```bash
-windrak create-readme
+windrak create-pr --repo owner/repo --base main --head feature/new-feature
 ```
 
-This command will generate a detailed README file for your repository, including information about the project structure, features, and usage.
+## Examples
+---------
+
+Here are some examples of using Windrak:
+
+*   Creating a pull request:
+
+    ```bash
+windrak create-pr --repo owner/repo --base main --head feature/new-feature
+```
+
+*   Generating a README file:
+
+    ```bash
+windrak create-readme --repo owner/repo --output README.md
+```
 
 ## Project Structure
+-------------------
 
-The Windrak project is structured as follows:
+The project structure is as follows:
 
-* `src/`: This directory contains the source code for the Windrak tool.
-* `src/windrak/`: This directory contains the main Windrak module.
-* `src/windrak/cli.py`: This file contains the command-line interface for Windrak.
-* `src/windrak/create_pr.py`: This file contains the logic for creating pull requests.
-* `src/windrak/create_readme.py`: This file contains the logic for generating README files.
-* `src/windrak/utils.py`: This file contains utility functions used throughout the Windrak tool.
+*   `src/`: The source code directory.
+*   `src/windrak/`: The Windrak package directory.
+*   `src/windrak/cli.py`: The CLI entry point.
+*   `src/windrak/create_pr.py`: The create-pr command implementation.
+*   `src/windrak/create_readme.py`: The create-readme command implementation.
+*   `src/windrak/utils.py`: Utility functions for Windrak.
 
-## Contributing
+## API Reference
+----------------
 
-Contributions to Windrak are welcome! If you'd like to contribute, please fork the repository and submit a pull request with your changes.
+Windrak uses the following APIs:
+
+*   **Groq API**: Windrak uses the Groq API to access the Groq LLM.
+*   **GitHub API**: Windrak uses the GitHub API to access GitHub repositories.
+
+## How to Contribute
+--------------------
+
+To contribute to Windrak, follow these steps:
+
+1.  Fork the repository.
+2.  Create a new branch for your feature or bug fix.
+3.  Make your changes and commit them.
+4.  Open a pull request.
 
 ## Troubleshooting
+------------------
 
-If you encounter any issues while using Windrak, please check the following:
+Here are some common issues and their resolutions:
 
-* Make sure you have the correct GitHub token and Groq API key set as environment variables.
-* Check the Windrak logs for any error messages.
-* Try running the Windrak commands with the `--verbose` flag to get more detailed output.
+*   **Groq API Key not set**: Set the `GROQ_API_KEY` environment variable.
+*   **GitHub Token not set**: Set the `GITHUB_TOKEN` environment variable.
+
+## Changelog
+------------
+
+Here is the changelog for Windrak:
+
+*   **0.1.0**: Initial release.
 
 ## License
+---------
 
 Windrak is licensed under the MIT License.
+
+## Contact
+------------
+
+To contact the maintainers, open an issue on the GitHub repository.

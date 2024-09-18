@@ -7,40 +7,121 @@ import fnmatch
 
 from .utils import generate_readme_content, require_api_keys
 
-# Default inclusion patterns
+# Patrones de inclusión predeterminados
 DEFAULT_INCLUDE_PATTERNS = [
-    '*.py',  # Python source files
-    '*.md',  # Markdown files
-    #'README*',  # README files
-    'LICENSE*',  # License files
-    'requirements.txt',  # Python dependencies
-    'setup.py',  # Python package setup
-    'Dockerfile',  # Docker configuration
-    '.gitignore',  # Git ignore file
-    'docs/*',  # Documentation directory
+    # Python
+    '*.py',
+    'requirements.txt',
+    'setup.py',
+    'Pipfile',
+    'pyproject.toml',
+    
+    # JavaScript/TypeScript
+    '*.js',
+    '*.jsx',
+    '*.ts',
+    '*.tsx',
+    'package.json',
+    'tsconfig.json',
+    
+    # Java
+    '*.java',
+    'pom.xml',
+    'build.gradle',
+    
+    # C#
+    '*.cs',
+    '*.csproj',
+    '*.sln',
+    
+    # PHP
+    '*.php',
+    'composer.json',
+    
+    # Ruby
+    '*.rb',
+    'Gemfile',
+    
+    # Go
+    '*.go',
+    'go.mod',
+    'go.sum',
+    
+    # Rust
+    '*.rs',
+    'Cargo.toml',
+    
+    # Swift
+    '*.swift',
+    'Package.swift',
+    
+    # Kotlin
+    '*.kt',
+    '*.kts',
+    
+    # Archivos comunes
+    '*.md',
+    'LICENSE*',
+    'Dockerfile',
+    '.gitignore',
+    'docs/*',
 ]
 
-# Default exclusion patterns
+# Patrones de exclusión predeterminados
 DEFAULT_EXCLUDE_PATTERNS = [
     'README.md',
 
-    # Python bytecode and cache
+    # Python
     '*.pyc',
     '__pycache__/*',
     '*.pyo',
     '*.pyd',
+    '.Python',
+    'pip-selfcheck.json',
     
-    # Virtual environments
+    # JavaScript/TypeScript
+    'node_modules/*',
+    'package-lock.json',
+    'yarn.lock',
+    '*.min.js',
+    
+    # Java
+    '*.class',
+    '*.jar',
+    'target/*',
+    '.gradle/*',
+    
+    # C#
+    'bin/*',
+    'obj/*',
+    '*.dll',
+    
+    # PHP
+    'vendor/*',
+    'composer.lock',
+    
+    # Ruby
+    '*.gem',
+    '.bundle/*',
+    
+    # Go
+    '/vendor/',
+    
+    # Rust
+    'target/*',
+    'Cargo.lock',
+    
+    # Swift
+    '.build/*',
+    'Packages/*',
+    
+    # Entornos virtuales y configuración
     'venv/*',
     'env/*',
     '.venv/*',
     '.env/*',
     'virtualenv/*',
-    '*env*/*',  # Catches variations like myenv, python-env, etc.
-    '.Python',
-    'pip-selfcheck.json',
-    
-    # Environment and local configuration files
+    '*env*/*',
     '.env',
     '*.env',
     '.env.*',
@@ -49,7 +130,7 @@ DEFAULT_EXCLUDE_PATTERNS = [
     '*.local',
     '*.local.*',
     
-    # IDE and editor files
+    # IDE y editores
     '.vscode/*',
     '.idea/*',
     '*.swp',
@@ -57,63 +138,59 @@ DEFAULT_EXCLUDE_PATTERNS = [
     '*.swn',
     '*.bak',
     
-    # OS generated files
+    # Archivos del sistema operativo
     '.DS_Store',
     'Thumbs.db',
     
-    # Build and distribution directories
+    # Directorios de compilación y distribución
     'build/*',
     'dist/*',
     '*.egg-info/*',
     
-    # Git related
+    # Git
     '.git/*',
     '.gitattributes',
     
-    # CI/CD related
+    # CI/CD
     '.github/*',
     '.travis.yml',
     '.gitlab-ci.yml',
     'circle.yml',
     'appveyor.yml',
     
-    # Docker related
+    # Docker
     '.dockerignore',
     
-    # Test directories and files
+    # Pruebas
     'tests/*',
     'test/*',
-    '*_test.py',
-    '*_tests.py',
+    '*_test.*',
+    '*_tests.*',
     
-    # Log files
+    # Logs
     '*.log',
     'logs/*',
     
-    # Database files
+    # Bases de datos
     '*.sqlite3',
     '*.db',
     
-    # Temporary files
+    # Archivos temporales
     'tmp/*',
     'temp/*',
     '*.tmp',
     '*.temp',
     
-    # Compiled files
+    # Archivos compilados
     '*.so',
     '*.dylib',
     '*.dll',
     
-    # Package manager directories
-    'node_modules/*',
-    'bower_components/*',
-    
-    # Coverage reports
+    # Informes de cobertura
     '.coverage',
     'htmlcov/*',
     
-    # Jupyter Notebook checkpoints
+    # Jupyter Notebook
     '.ipynb_checkpoints/*',
 ]
 

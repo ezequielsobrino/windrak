@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="windrak",
-    version="0.1.4",
+    version="0.1.5",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     include_package_data=True,
@@ -10,7 +10,7 @@ setup(
         "click",
         "groq",
         "python-dotenv",
-        "directory-info-extractor",
+        "requests",
     ],
     entry_points={
         "console_scripts": [
